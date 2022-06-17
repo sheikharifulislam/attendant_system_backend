@@ -3,23 +3,35 @@ const { Schema, model } = require("mongoose");
 const userSchema = new Schema({
     name: {
         type: String,
-        require: true,
+        minlength: 3,
+        maxlength: 30,
+        required: true,
     },
     email: {
         type: String,
-        require: true,
+        validate: {
+            validator: function (v) {
+                return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+            },
+            message: (props) => `${props.value} is not a valid email address`,
+        },
+        required: [true, "User email required"],
     },
     password: {
         type: String,
-        require: true,
+        minlength: [6, "Password is too short"],
+        required: true,
     },
     roles: {
         type: [String],
-        require: true,
+        default: ["STUDENT"],
+        required: true,
     },
     accountStatus: {
         type: String,
-        require: true,
+        enum: ["PENDING", "ACTIVE", "REJECTED"],
+        default: "PENDING",
+        required: true,
     },
 });
 
