@@ -44,6 +44,31 @@ app.post("/registration", async (req, res, next) => {
     }
 });
 
+app.post("/login", async (req, res, next) => {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+        return res.status(400).json({
+            message: "Email Or Password Invalid",
+        });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+        return res.status(400).json({
+            message: "Email Or Password Invalid",
+        });
+    }
+
+    delete user._doc.password;
+
+    res.status(200).json({
+        error: false,
+        success: true,
+        message: "Login Successfully",
+        user,
+    });
+});
+
 app.use((err, req, res, next) => {
     console.log(err.message);
     res.status(500).json({
