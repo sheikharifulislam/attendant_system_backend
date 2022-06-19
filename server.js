@@ -1,72 +1,23 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const User = require("./models/User");
-const bcrypt = require("bcryptjs");
 const app = express();
 const connectDB = require("./db");
+const { authenticate } = require("./middleware/authenticate");
+const routes = require("./routes");
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/v1", routes);
 
-app.post("/registration", async (req, res, next) => {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-        return res.status(400).json({
-            message: "Invalid Data",
-        });
-    }
+app.get("/private", authenticate, async (req, res, next) => {
     try {
-        let user = await User.findOne({ email });
-        if (user) {
-            return res.status(400).json({
-                message: "User Already Registered",
-            });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashPassword = await bcrypt.hash(password, salt);
-
-        user = await new User({
-            name,
-            email,
-            password: hashPassword,
-        });
-        user.save();
-
-        res.status(201).json({
-            success: true,
-            error: false,
-            user,
+        res.status(200).json({
+            message: "I am private route ",
         });
     } catch (error) {
         next(error);
     }
-});
-
-app.post("/login", async (req, res, next) => {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-        return res.status(400).json({
-            message: "Email Or Password Invalid",
-        });
-    }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-        return res.status(400).json({
-            message: "Email Or Password Invalid",
-        });
-    }
-
-    delete user._doc.password;
-
-    res.status(200).json({
-        error: false,
-        success: true,
-        message: "Login Successfully",
-        user,
-    });
 });
 
 app.use((err, req, res, next) => {
