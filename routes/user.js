@@ -4,18 +4,25 @@ const userController = require("../controller/user");
 /**
  * get user by email or id
  **/
+router.get("/:userId/", userController.getUserById);
 
-router.get("/:userid/", (rq, res) => {});
 /**
  * update use by id
+ * @method put
  **/
+router.put("/:userId/", userController.putUserById);
 
-router.patch("/:userid/", (req, res) => {});
+/**
+ * update use by id
+ * @method patch
+ **/
+router.patch("/:userId/", userController.patchUserById);
+
 /**
  * delete use by id
  **/
-router.delete("/:userid/", (req, res) => {});
+router.delete("/:userId/", userController.deleteUserById);
 router.get("/", userController.getUsers);
-router.post("/", (req, res) => {});
+router.post("/", userController.postUser);
 
 module.exports = router;
